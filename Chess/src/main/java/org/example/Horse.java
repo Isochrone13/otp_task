@@ -35,7 +35,7 @@ public class Horse extends ChessPiece {
             // Проверяем, что на целевой позиции нет своей фигуры
             return !isFriendlyPiece(board, toLine, toColumn);
         }
-
+        // Если ни одно из условий не выполнено, ход невозможен
         return false;
     }
 }
