@@ -1,57 +1,64 @@
+// Объявляем фигуру, наследуем от абстрактного класса ChessPiece
 public class Bishop extends ChessPiece {
+    // Получаем в конструктор параметр color и передаём его в конструктор родительского класса ChessPiece
     public Bishop(String color) {
-        super(color); // конструктор родительского класса для установки цвета
+        super(color);
     }
 
-    // метод, который возвращает символ слона
     @Override
     public String getSymbol() {
         return "B";
     }
 
-    @Override
-    public String getColor() {
-        return super.getColor(); // получаем цвет фигуры из родительского класса
-    }
-
-    // Вспомогательный метод для проверки, находится ли позиция на доске
-    private boolean isValidPosition(int line, int column) {
-        return line >= 0 && line <= 7 && column >= 0 && column <= 7;
-    }
-
+    // Проверяем, что фигура может пойти на выбранную клетку
     @Override
     public boolean canMoveToPosition(
-        ChessBoard chessBoard, int line, int column, int toLine, int toColumn) {
+            ChessBoard board, int line, int column, int toLine, int toColumn) {
 
-        // Проверяем, что начальная и конечная позиции находятся на доске
-        if (!isValidPosition(line, column) || !isValidPosition(toLine, toColumn)) return false;
-
-        // Проверяем, что фигура не осталась на том же месте
-        if (line == toLine && column == toColumn) return false;
-
-        // Проверяем, что фигура движется ли по диагонали
-        if (Math.abs(toLine - line) == Math.abs(toColumn - column)) {
-
-            // Определяем направление движения
-            int deltaLine = (toLine > line) ? 1 : -1;
-            int deltaColumn = (toColumn > column) ? 1 : -1;
-
-            // Проверяем каждую клетку по пути
-            int currentLine = line + deltaLine;
-            int currentColumn = column + deltaColumn;
-
-            while (currentLine != toLine && currentColumn != toColumn) {
-                if (chessBoard.board[currentLine][currentColumn] != null) return false;
-                currentLine += deltaLine;
-                currentColumn += deltaColumn;
-            }
-
-            // Проверяем конечную клетку
-            ChessPiece destinationPiece = chessBoard.board[toLine][toColumn];
-            return destinationPiece == null || !destinationPiece.getColor().equals(this.getColor());
+        // Проверяем, что позиция внутри доски
+        if (!isValidPosition(line, column) || !isValidPosition(toLine, toColumn)) {
+            return false;
         }
 
-        // Если движение не по диагонали, ход невозможен
+        // Проверяем, что фигура не остаётся на том же месте
+        if (isSamePosition(line, column, toLine, toColumn)) {
+            return false;
+        }
+
+        // Проверяем, что слон движется по диагонали
+        if (Math.abs(toLine - line) == Math.abs(toColumn - column)) {
+            // Проверяем, что путь свободен
+            if (isPathClear(board, line, column, toLine, toColumn)) {
+                // Проверяем, что на целевой позиции нет своей фигуры
+                return !isFriendlyPiece(board, toLine, toColumn);
+            }
+        }
+
+        // Если ни одно из условий не выполнено, ход невозможен
         return false;
+    }
+
+    // Проверка, что путь свободен
+    private boolean isPathClear(ChessBoard board, int line, int column, int toLine, int toColumn) {
+        // Вычисляем направление движения по строкам и столбцам
+        int moveLine = (toLine > line) ? 1 : -1;
+        int moveColumn = (toColumn > column) ? 1 : -1;
+
+        // Устанавливаем текущую позицию на следующую клетку в направлении движения
+        int currentLine = line + moveLine;
+        int currentColumn = column + moveColumn;
+
+        // Проходим по клеткам до целевой позиции
+        while (currentLine != toLine && currentColumn != toColumn) {
+            // Если на текущей клетке уже есть фигура, путь блокирован
+            if (board.board[currentLine][currentColumn] != null) {
+                return false;
+            }
+            // Переходим на следующую клетку в направлении движения
+            currentLine += moveLine;
+            currentColumn += moveColumn;
+        }
+        // Если все промежуточные клетки свободны, путь свободен
+        return true;
     }
 }

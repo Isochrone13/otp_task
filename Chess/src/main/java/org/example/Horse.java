@@ -1,48 +1,41 @@
+// Объявляем фигуру, наследуем от абстрактного класса ChessPiece
 public class Horse extends ChessPiece {
+    // Получаем в конструктор параметр color и передаём его в конструктор родительского класса ChessPiece
     public Horse(String color) {
-        super(color); // конструктор родительского класса для установки цвета
+        super(color);
     }
 
-    // метод, который возвращает символ коня
     @Override
     public String getSymbol() {
         return "H";
     }
 
-    @Override
-    public String getColor() {
-        return super.getColor(); // получаем цвет фигуры из родительского класса
-    }
-
-    // Вспомогательный метод для проверки, находится ли позиция на доске
-    private boolean isValidPosition(int line, int column) {
-        return line >= 0 && line <= 7 && column >= 0 && column <= 7;
-    }
-
+    // Проверяем, что фигура может пойти на выбранную клетку
     @Override
     public boolean canMoveToPosition(
-            ChessBoard chessBoard, int line, int column, int toLine, int toColumn) {
+            ChessBoard board, int line, int column, int toLine, int toColumn) {
 
-        // Проверяем, что начальная и конечная позиции находятся на доске
-        if (!isValidPosition(line, column) || !isValidPosition(toLine, toColumn)) return false;
-
-        // Проверяем, что фигура не осталась на том же месте
-        if (line == toLine && column == toColumn) return false;
-
-        // Вычисляем разницу по строкам и столбцам
-        int deltaLine = Math.abs(toLine - line);
-        int deltaColumn = Math.abs(toColumn - column);
-
-        // Проверяем, соответствует ли ход букве "Г"
-        if ((deltaLine == 2 && deltaColumn == 1) || (deltaLine == 1 && deltaColumn == 2)) {
-
-            // Получаем фигуру в целевой позиции
-            ChessPiece destinationPiece = chessBoard.board[toLine][toColumn];
-
-            // Если там нет фигуры или фигура противника, то ход возможен
-            return destinationPiece == null || !destinationPiece.getColor().equals(this.getColor());
+        // Проверяем, что позиция внутри доски
+        if (!isValidPosition(line, column) || !isValidPosition(toLine, toColumn)) {
+            return false;
         }
 
-        return false; // в остальных случаях ход невозможен
+        // Проверяем, что фигура не остаётся на том же месте
+        if (isSamePosition(line, column, toLine, toColumn)) {
+            return false;
+        }
+
+        // Вычисляем разницу между начальной и целевой строками и столбцами
+        int jumpLine = Math.abs(toLine - line);
+        int jumpColumn = Math.abs(toColumn - column);
+
+        // Проверяем, соответствует ли ход коня перемещению буквой Г
+        // 2 клетки по вертикали и 1 по горизонтали или 1 по вертикали и 2 по горизонтали
+        if ((jumpLine == 2 && jumpColumn == 1) || (jumpLine == 1 && jumpColumn == 2)) {
+            // Проверяем, что на целевой позиции нет своей фигуры
+            return !isFriendlyPiece(board, toLine, toColumn);
+        }
+
+        return false;
     }
 }

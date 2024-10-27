@@ -1,63 +1,57 @@
+// Объявляем фигуру, наследуем от абстрактного класса ChessPiece
 public class Pawn extends ChessPiece {
+    // Получаем в конструктор параметр color и передаём его в конструктор родительского класса ChessPiece
     public Pawn(String color) {
-        super(color); // конструктор родительского класса для установки цвета
+        super(color);
     }
 
-    // метод, который возвращает символ пешки
     @Override
     public String getSymbol() {
         return "P";
     }
 
-    @Override
-    public String getColor() {
-        return super.getColor(); // получаем цвет фигуры из родительского класса
-    }
-
-    // Вспомогательный метод для проверки, находится ли позиция на доске
-    private boolean isValidPosition(int line, int column) {
-        return line >= 0 && line <= 7 && column >= 0 && column <= 7;
-    }
-
+    // Проверяем, что фигура может пойти на выбранную клетку
     @Override
     public boolean canMoveToPosition(
-        ChessBoard chessBoard, int line, int column, int toLine, int toColumn) {
+            ChessBoard board, int line, int column, int toLine, int toColumn) {
 
-        // Проверяем, что начальная и конечная позиции находятся на доске
-        if (!isValidPosition(line, column) || !isValidPosition(toLine, toColumn)) return false;
+        // Проверяем, что позиция внутри доски
+        if (!isValidPosition(line, column) || !isValidPosition(toLine, toColumn)) {
+            return false;
+        }
 
-        // Проверяем, что фигура не осталась на том же месте
-        if (line == toLine && column == toColumn) return false;
+        // Проверяем, что фигура не остаётся на том же месте
+        if (isSamePosition(line, column, toLine, toColumn)) {
+            return false;
+        }
 
-        // Определяем направление движения в зависимости от цвета
-        int direction = this.color.equals("White") ? 1 : -1;
+        // Определяем направление движения пешки в зависимости от цвета
+        // Белые пешки движутся вверх (увеличиваем номер строки)
+        // Черные пешки движутся вниз (уменьшаем номер строки)
+        int direction = this.getColor().equals("White") ? 1 : -1;
+        // Определяем начальную строку для пешки (ход на две клетки)
+        // Белые пешки начинают с строки 1, черные с строки 6
+        int startLine = this.getColor().equals("White") ? 1 : 6;
 
-        // Если движемся по тому же столбцу
+        // Пешка двигается по тому же столбцу
         if (column == toColumn) {
-            // На одну клетку вперед
+            // На одну клетку вперёд
             if (line + direction == toLine) {
-                // Проверяем, что впереди нет фигур
-                return chessBoard.board[toLine][toColumn] == null;
-
-            // На две клетки вперед с начальной позиции
-            } else if (line + 2 * direction == toLine) {
-                if ((this.color.equals("White") && line == 1) ||
-                        (this.color.equals("Black") && line == 6)) {
-
-                    // Проверяем, что впереди нет фигур
-                    return chessBoard.board[line + direction][toColumn] == null &&
-                            chessBoard.board[toLine][toColumn] == null;
-                }
+                return board.board[toLine][toColumn] == null;
+            }
+            // На две клетки вперёд с начальной позиции
+            if (line == startLine && line + 2 * direction == toLine) {
+                return board.board[line + direction][toColumn] == null &&
+                        board.board[toLine][toColumn] == null;
             }
         }
-        // Если движемся по диагонали для взятия фигуры
+        // Пешка бьёт по диагонали
         else if (Math.abs(column - toColumn) == 1 && line + direction == toLine) {
-            ChessPiece destinationPiece = chessBoard.board[toLine][toColumn];
-            // Проверяем, есть ли  целевой клетке фигура противника
-            return destinationPiece != null && !destinationPiece.getColor().equals(this.color);
+            // Проверяем, что на целевой позиции находится фигура противника
+            return isOpponentPiece(board, toLine, toColumn);
         }
 
-        // В остальных случаях ход невозможен
+        // Если ни одно из условий не выполнено, ход невозможен
         return false;
     }
 }

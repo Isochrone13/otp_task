@@ -1,16 +1,24 @@
 public class ChessBoard {
+    // Создаём игровое поле размером 8x8 из объектов ChessPiece
     public ChessPiece[][] board = new ChessPiece[8][8]; // creating a field for game
+    // Переменная для хранения текущего игрока "White" или "Black"
     String nowPlayer;
 
+    // Инициализация текущего игрока
     public ChessBoard(String nowPlayer) {
         this.nowPlayer = nowPlayer;
     }
 
+    // Получаем цвет текущего игрока
     public String nowPlayerColor() {
         return this.nowPlayer;
     }
 
+    // Метод для перемещения фигуры из startLine, startColumn в endLine, endColumn
+    // Возвращает true, если ход выполнен успешно, иначе false
     public boolean moveToPosition(int startLine, int startColumn, int endLine, int endColumn) {
+
+        // Проверяем, что начальные координаты находятся в пределах поля
         if (checkPos(startLine) && checkPos(startColumn)) {
 
             // Проверяем, есть ли фигура в начальной позиции
@@ -67,6 +75,7 @@ public class ChessBoard {
         System.out.println("Player 1(White)");
     }
 
+    // Метод проверки не выходит ли ход за пределы поля
     public boolean checkPos(int pos) {
         return pos >= 0 && pos <= 7;
     }
