@@ -12,10 +12,10 @@ public class DbUtil {
     private static final String URL = "jdbc:postgresql://localhost:5432/postgres";
 
     // Имя пользователя для подключения к базе данных.
-    private static final String USER = "postgres";
+    private static final String USER = "ENTER_YOUR_USERNAME";
 
     // Пароль для подключения к базе данных.
-    private static final String PASSWORD = "13263952";
+    private static final String PASSWORD = "ENTER_YOUR_PASSWORD";
 
     // Создаём подключение к БД с помощью getConnection()
     public static Connection getConnection() throws SQLException {
